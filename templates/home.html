@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
+
+</head>
+<body>
+	Desde: <input type="date" name="gte" id="gte">
+	Hasta: <input type="date" name="lte" id="lte">
+<ul class="nav nav-pills nav-fill">
+  <li class="nav-item">
+    <a class="nav-link active" id="udis-tab" data-toggle="tab" href="#udis" role="tab" aria-controls="udis" aria-selected="true">UDIS</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="dolar-tab" data-toggle="tab" href="#dolar" role="tab" aria-controls="dolar" aria-selected="false">DOLAR</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="tiee-tab" data-toggle="tab" href="#tiee" role="tab" aria-controls="tiee" aria-selected="false">TIIE</a>
+  </li>
+</ul>
+<div class="container">
+	<div class="tab-content" id="myTabContent">
+	  <div class="tab-pane fade show active" id="udis" role="tabpanel" aria-labelledby="udis-tab">
+	  	<button class="btn btn-success" id="boton_udis">Consultar</button>
+	  	<div>
+	  		<p>Maximo:<span id="max-udis"></span></p>
+	  		<p>Minimo:<span id="min-udis"></span></p>
+	  		<p>Promedio:<span id="avg-udis"></span></p>
+	  	</div>
+	  	<div id="plot-udis"></div>
+	  	<table id="table-udis" class="table"></table>
+	  	<div></div>
+	  </div>
+	  <div class="tab-pane fade" id="dolar" role="tabpanel" aria-labelledby="dolar-tab">
+	  	<button class="btn btn-success" id="boton_dolar">Consultar</button>
+	  	<div>
+	  		<p>Maximo:<span id="max-dolar"></span></p>
+	  		<p>Minimo:<span id="min-dolar"></span></p>
+	  		<p>Promedio:<span id="avg-dolar"></span></p>
+	  	</div>
+	  	<div id="plot-dolar"></div>
+	  	<table id="table-dolar" class="table"></table>
+	  	<div></div>
+	  </div>
+	  <div class="tab-pane fade" id="tiee" role="tabpanel" aria-labelledby="tiee-tab">
+	  	<button class="btn btn-success" id="boton_tiie">Consultar</button>
+	  	<div class="row">
+	  		<div class="col-md-12">
+	  			<div id="plot-tiie"></div>
+	  		</div>
+	  	</div>
+	  	<div class="row">
+	  		<div class="col-md-6">
+	  			<h4>Tasa objetivo</h4>
+	  			<table id="table-tiie-SF61745" class="table"></table>
+	  		</div>
+	  		<div class="col-md-6">
+	  			<h4>Tasas de interés interbancarias                Por ciento anual TIIE a 91 días</h4>
+	  			<table id="table-tiie-SF43878" class="table"></table>
+	  		</div>
+	  		<div class="col-md-6">
+	  			<h4>TIIE a 28 días Tasa de interés en por ciento anual</h4>
+	  			<table id="table-tiie-SF43783" class="table"></table>
+	  		</div>
+	  		<div class="col-md-6">
+	  			<h4>TIIE de Fondeo a Un Día Hábil Bancario, Mediana ponderada por volumen</h4>
+	  			<table id="table-tiie-SF331451" class="table"></table>
+	  		</div>
+	  		<div class="col-md-6">
+	  			<h4>TIIE a 182 días</h4>
+	  			<table id="table-tiie-SF111916" class="table"></table>
+	  		</div>
+	  	</div>
+	  	
+	  </div>
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript">
+	function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+	$("#boton_udis").click(function(){
+		url = "/udis"
+		ajax_base(url, 'udis');
+		
+	})
+	$("#boton_dolar").click(function(){
+		url = "/dolar"
+		ajax_base(url, 'dolar');
+		
+	})
+	$("#boton_tiie").click(function(){
+		/*
+			Funcion para acomodar todos los datos pertenecientes a la pestaña tiie
+		*/
+		url = "/tiie"
+		data={"gte":$("#gte").val(), "lte":$("#lte").val(), "csrfmiddlewaretoken": csrftoken}
+		$.ajax({
+		  type: "POST",
+		  url: url,
+		  data: data,
+		  success: function(result){
+		  	data = []
+		  	result.data.forEach(function(serie){
+		  		var dates = [];
+		  		var values = [];
+		  		serie.datos.forEach(function(item){
+		  			dates.push(item.fecha);
+		  			values.push(item.dato);
+		  		});
+		  		data.push({
+			  		x: dates,
+			  		y: values,
+			  		type: "scatter",
+			  		name: serie.titulo,
+		  		})
+		  		
+
+				if ( $.fn.DataTable.isDataTable("#table-tiie-"+serie.idSerie) ) {
+				  $("#table-tiie-"+serie.idSerie).DataTable().destroy();
+				}
+				$("#table-tiie-"+serie.idSerie).DataTable( {
+			        data: serie.datos,
+			        columns: [
+			            { title: "Fecha", data: "fecha", className: 'dt-head-justify' },
+			            { title: "Dato", data: "dato" , className: 'dt-head-justify'},
+		        	]
+	    		});
+
+		  	})
+		  	
+
+			Plotly.newPlot("plot-tiie", data);
+		  },
+		});
+		
+	})
+function ajax_base(url, type_data){
+	/*
+		funcion base para acomodar los valores de las pestañas dolar y UDIS
+			url: url objetivo
+			type_data: tipo de pestaña(dolar/udis)
+	*/
+	data={"gte":$("#gte").val(), "lte":$("#lte").val(), "csrfmiddlewaretoken": csrftoken}
+	$.ajax({
+		  type: "POST",
+		  url: url,
+		  data: data,
+		  success: function(result){
+		  	$("#max-"+ type_data).text(result.max);
+		  	$("#min-"+ type_data).text(result.min);
+		  	$("#avg-"+ type_data).text(result.avg);
+		  	var dates = [];
+		  	var values = [];
+		  	result.data.forEach(function(item){
+		  		dates.push(item.fecha);
+		  		values.push(item.dato);
+		  	})
+		  	data = [{
+		  		x: dates,
+		  		y: values,
+		  		type: "scatter"
+		  	}]
+
+			Plotly.newPlot("plot-"+type_data, data);
+			if ( $.fn.DataTable.isDataTable("#table-"+type_data) ) {
+			  $("#table-"+type_data).DataTable().destroy();
+			}
+			$("#table-"+type_data).DataTable( {
+		        data: result.data,
+		        columns: [
+		            { title: "Fecha", data: "fecha", className: 'dt-head-justify' },
+		            { title: "Dato", data: "dato" , className: 'dt-head-justify'},
+	        	]
+    		});
+		  },
+		});
+}
+</script>
+</body>
+</html>
